@@ -4,15 +4,18 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import com.example.healthcare.R
+import com.example.healthcare.base.BaseSurfaceViewActivity
+import com.example.healthcare.bean.ColorBean
+import com.example.healthcare.utils.CommonHelper
 import com.imebra.*
 import kotlinx.android.synthetic.main.activity_dicom_viewer.*
 import me.rosuh.filepicker.config.FilePickerManager
@@ -26,8 +29,8 @@ import java.io.File
 import java.nio.ByteBuffer
 import kotlin.math.abs
 
-
-class DicomViewerActivity : AppCompatActivity() {
+@SuppressLint("SetTextI18n")
+class DicomViewerActivity : BaseSurfaceViewActivity() {
     private lateinit var mImageView:ImageView
     val REQUESTCODE_FROM_ACTIVITY = 666
     private val dicomFiles = ArrayList<File>()
@@ -44,6 +47,8 @@ class DicomViewerActivity : AppCompatActivity() {
     var windowWidth = 400f
     val windowWidthMAX = 2000f
     val windowWidthMIN = 85f
+
+    private val colorBeanList = ArrayList<ColorBean>()
 
     private val moveListener = object :MoveGestureDetector.SimpleOnMoveGestureListener(){
         override fun onMove(detector: MoveGestureDetector?,event: MotionEvent?): Boolean {
@@ -83,7 +88,12 @@ class DicomViewerActivity : AppCompatActivity() {
                 Log.d("onMove_LEFT_RIGHT","---------------")
 
                 when(event?.pointerCount){
-                    1 -> {}
+                    1 -> {
+                        //单指屏幕左侧左滑 -> 返回
+                        if (d.x>0 && event.x <220 ){
+                            finish()
+                        }
+                    }
                     2 -> {
                         //调整窗位
                         Log.d("onMove_change","---------------")
@@ -101,6 +111,42 @@ class DicomViewerActivity : AppCompatActivity() {
     }
 
 
+    //载入模型
+    private fun loadModel() {
+        //案例数据填充
+        val modelUri = intent.getStringExtra("modelUri")
+
+        val list = intent.getSerializableExtra("colorBeanList") as ArrayList<ColorBean>?
+        if (list?.isNotEmpty() == true){
+            colorBeanList.addAll(list)
+        }
+
+        customViewer.loadGltf(this,modelUri)
+        setColor()
+    }
+    private fun setColor() {
+        val myInstance =  customViewer.modelViewer.asset?.materialInstances!!
+
+        val entities = customViewer.modelViewer.asset!!.entities
+
+        for (count in entities.indices){
+            Log.d("MeshBlendingMode:",customViewer.modelViewer.asset!!.materialInstances[count].material.blendingMode.toString())
+            val meshName =
+                CommonHelper.decode(customViewer.modelViewer.asset!!.getName(entities[count]))
+            Log.d("MeshBlendingMode: mesh_name",meshName)
+
+            val color = Color.parseColor(CommonHelper.colorMap.getOrDefault(meshName,"#FFCA95"))
+            Log.d("mesh_color","${Color.red(color)}  ${Color.green(color)}  ${Color.blue(color)}")
+            myInstance[count].setParameter("baseColorFactor",
+                colorBeanList[count].r,
+                colorBeanList[count].g,
+                colorBeanList[count].b,
+                colorBeanList[count].a
+            )
+        }
+    }
+
+
 
     private lateinit var moveGestureDetector: MoveGestureDetector
 
@@ -111,18 +157,15 @@ class DicomViewerActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
+
+
+    override fun getSurfaceViewId(): Int = R.id.surface
+    override fun getContentViewId(): Int =
+        R.layout.activity_dicom_viewer
+
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
-        // First thing: load the Imebra library
-        System.loadLibrary("imebra_lib")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dicom_viewer)
-        //隐藏底部导航栏
-        val decorView = window.decorView
-        val uiOptions = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN)
-        decorView.systemUiVisibility = uiOptions
+        loadModel()
 
         mImageView = findViewById(R.id.mImageView)
 
@@ -133,8 +176,6 @@ class DicomViewerActivity : AppCompatActivity() {
 //            .from(this)
 //            .forResult(REQUESTCODE_FROM_ACTIVITY)
 
-
-//        val files = File("/storage/emulated/0/dicomfile/patient1/")
         val files = File("/storage/emulated/0/dicomfile/patient1/")
         dicomFiles.clear()
         dicomFiles.addAll(
@@ -144,19 +185,6 @@ class DicomViewerActivity : AppCompatActivity() {
 
         )
 
-//        mImageView.onClick {
-//            ++index
-//            if (index>=dicomFiles.size){
-//                index = 0
-//            }
-//            loadDicomFile(dicomFiles[index])
-//        }
-//        mImageView.setOnTouchListener { v, event ->
-//            gestureDetector.onTouchEvent(event)
-//            true
-//        }
-//        loadDICOM(dicomFiles[0].path)
-//        loadDicomFile(dicomFiles[0])
         loadDicomIntoImageView(dicomFiles[0],mImageView)
     }
 
@@ -182,11 +210,11 @@ class DicomViewerActivity : AppCompatActivity() {
 //            tv_station.setText("站点：$station")
 
         //制造商
-        val Manufacturer = attrs.getString(Tag.Manufacturer, "")
-        tv_manufacturer.text = "制造商：$Manufacturer"
+        val manufacturer = attrs.getString(Tag.Manufacturer, "")
+        tv_manufacturer.text = "制造商：$manufacturer"
 
         //制造商模型
-        val ManufacturerModelName = attrs.getString(Tag.ManufacturerModelName, "")
+        val manufacturerModelName = attrs.getString(Tag.ManufacturerModelName, "")
 //            tv_manufacturerModelName.setText("制造商模型：$ManufacturerModelName")
 
 
@@ -263,34 +291,7 @@ class DicomViewerActivity : AppCompatActivity() {
         val height = image.height
         val width = image.width
         val chain = TransformsChain()
-//        if (ColorTransformsFactory.isMonochrome(image.colorSpace)) {
-//            // Allocate a VOILUT transform. If the DataSet does not contain any pre-defined
-//            //  settings then we will find the optimal ones.
-//            val voilutTransform = VOILUT()
-//
-//            // Retrieve the VOIs (center/width pairs)
-//            val vois = dataSet.voIs
-//
-//            // Retrieve the LUTs
-//            val luts: MutableList<LUT> = java.util.ArrayList()
-//            var scanLUTs: Long = 0
-//            while (true) {
-//                try {
-//                    luts.add(dataSet.getLUT(TagId(0x0028, 0x3010), scanLUTs))
-//                } catch (e: Exception) {
-//                    break
-//                }
-//                scanLUTs++
-//            }
-//            if (!vois.isEmpty) {
-//                voilutTransform.setCenterWidth(vois[0].center, vois[0].width)
-//            } else if (!luts.isEmpty()) {
-//                voilutTransform.setLUT(luts[0])
-//            } else {
-//                voilutTransform.applyOptimalVOI(image, 0, 0, width, height)
-//            }
-//            chain.addTransform(voilutTransform)
-//        }
+
         val draw = DrawBitmap(chain)
 
 // Ask for the size of the buffer (in bytes)
@@ -377,21 +378,9 @@ class DicomViewerActivity : AppCompatActivity() {
         renderBitmap.copyPixelsFromBuffer(byteBuffer)
 
         // Update the image
-
-        // Update the image
         mImageView.setImageBitmap(renderBitmap)
 //        mImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
 
-        // Update the text with the patient name
-
-        // Update the text with the patient name
-//        mTextView.setText(
-//            loadDataSet.getPatientName(
-//                TagId(0x10, 0x10),
-//                0,
-//                PatientName("Undefined", "", "")
-//            ).alphabeticRepresentation
-//        )
     }
 
 
@@ -414,4 +403,7 @@ class DicomViewerActivity : AppCompatActivity() {
         }
 
     }
+
+
+
 }

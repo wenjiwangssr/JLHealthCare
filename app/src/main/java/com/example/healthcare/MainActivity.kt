@@ -32,7 +32,8 @@ class MainActivity : AppCompatActivity() {
 //        customViewer.loadGltf(this,"models/DamagedHelmet.gltf")
 
         //Environments and Lightning (OPTIONAL)
-        customViewer.loadIndirectLight(this, "venetian_crossroads_2k")
+        customViewer.loadIndirectLight(this, "environments/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx")
+
 //        customViewer.loadEnvironments(this, "venetian_crossroads_2k");
         customViewer.modelViewer.view.blendMode = View.BlendMode.TRANSLUCENT
         if (uri != null) {

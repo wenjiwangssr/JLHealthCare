@@ -64,6 +64,7 @@
             android:exported="true"
             android:screenOrientation="landscape" />
         <activity android:name=".dicom.TouchActivity" />
+        <activity android:name=".ui.ColorModifyActivity" />
 
         <meta-data
             android:name="com.google.ar.core"

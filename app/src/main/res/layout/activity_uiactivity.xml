@@ -41,7 +41,7 @@
             android:layout_height="120dp"/>
     </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout>
     <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:id="@+id/color_view_container"
@@ -50,6 +50,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_height="0dp">
         <androidx.recyclerview.widget.RecyclerView
+            android:layout_gravity="center"
             android:layout_width="match_parent"
             android:id="@+id/rv_color_picker"
             android:layout_height="match_parent"/>

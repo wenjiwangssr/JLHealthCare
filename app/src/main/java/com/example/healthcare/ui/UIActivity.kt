@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceView
 import android.view.View
 import android.widget.TextView
@@ -18,23 +19,23 @@ import com.example.healthcare.R
 import com.example.healthcare.bean.CaseBean
 import com.example.healthcare.bean.ColorBean
 import com.example.healthcare.dicom.DicomViewerActivity
+import com.example.healthcare.dicom.MoveGestureDetector
 import com.example.healthcare.ui.adapter.CaseAdapter
 import com.example.healthcare.ui.adapter.ColorAdapter
 import com.example.healthcare.utils.CommonHelper
 import com.example.healthcare.utils.CommonHelper.decode
 import com.google.android.filament.*
-import com.mig35.carousellayoutmanager.CarouselLayoutManager
-import com.mig35.carousellayoutmanager.CarouselZoomPostLayoutListener
-import com.mig35.carousellayoutmanager.CenterScrollListener
 import com.qmuiteam.qmui.kotlin.onClick
 import com.yarolegovich.discretescrollview.DiscreteScrollView
 import com.yarolegovich.discretescrollview.transform.Pivot
 import com.yarolegovich.discretescrollview.transform.ScaleTransformer
+import kotlinx.android.synthetic.main.activity_dicom_viewer.*
 import kotlinx.android.synthetic.main.activity_uiactivity.*
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.PermissionRequest
 import java.io.File
 import java.util.*
+import kotlin.math.abs
 
 
 class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
@@ -55,7 +56,9 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
     private lateinit var colorRecyclerView: RecyclerView
     private lateinit var colorAdapter: ColorAdapter
 
-    @Entity private var light = 0
+    private lateinit var moveGestureDetector: MoveGestureDetector
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // First thing: load the Imebra library
@@ -93,7 +96,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
             EasyPermissions.requestPermissions(PermissionRequest.Builder(this,666,perms[0],perms[1]).build())
         }
 
-
+        moveGestureDetector = MoveGestureDetector(this,moveListener)
 
         findViewById<View>(R.id.back).onClick {
             finish()
@@ -103,15 +106,22 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
     //初始化右侧色块选择栏
     private fun setColorView() {
 
-        val layoutManager = CarouselLayoutManager(CarouselLayoutManager.VERTICAL,true)
-        layoutManager.setPostLayoutListener(CarouselZoomPostLayoutListener(0.1f))
+//        val layoutManager = CarouselLayoutManager(CarouselLayoutManager.VERTICAL,true)
+//        layoutManager.setPostLayoutListener(CarouselZoomPostLayoutListener(0.1f))
+//        colorRecyclerView = findViewById(R.id.rv_color_picker)
+//        colorRecyclerView.layoutManager = layoutManager
+//        colorRecyclerView.setHasFixedSize(true)
+//        colorAdapter = ColorAdapter()
+//        colorRecyclerView.adapter = colorAdapter
+//        colorRecyclerView.addOnScrollListener(CenterScrollListener())
+
         colorRecyclerView = findViewById(R.id.rv_color_picker)
-        colorRecyclerView.layoutManager = layoutManager
-        colorRecyclerView.setHasFixedSize(true)
+        colorRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        colorRecyclerView.overScrollMode = View.OVER_SCROLL_NEVER
+//        colorRecyclerView.setHasFixedSize(true)
+
         colorAdapter = ColorAdapter()
         colorRecyclerView.adapter = colorAdapter
-        colorRecyclerView.addOnScrollListener(CenterScrollListener())
-
 
     }
 
@@ -145,15 +155,24 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         CommonHelper.loadDicomIntoImageView(files.listFiles()[0],dicom_img_1)
         CommonHelper.loadDicomIntoImageView(files.listFiles()[0],dicom_img_2)
         CommonHelper.loadDicomIntoImageView(files.listFiles()[0],dicom_img_3)
-        dicom_img_1.onClick {
-            startActivity(Intent(this,DicomViewerActivity::class.java))
-        }
-        dicom_img_2.onClick {
-            startActivity(Intent(this,DicomViewerActivity::class.java))
-        }
-        dicom_img_3.onClick {
-            startActivity(Intent(this,DicomViewerActivity::class.java))
-        }
+//        dicom_img_1.onClick {
+//            val intent = Intent(this,DicomViewerActivity::class.java)
+//            intent.putExtra("modelUri",modelUriList[discreteScrollView.currentItem])
+//            intent.putExtra("colorBeanList",colorBeanList[discreteScrollView.currentItem])
+//            startActivity(intent)
+//        }
+//        dicom_img_2.onClick {
+//            val intent = Intent(this,DicomViewerActivity::class.java)
+//            intent.putExtra("modelUri",modelUriList[discreteScrollView.currentItem])
+//            intent.putExtra("colorBeanList",colorBeanList[discreteScrollView.currentItem])
+//            startActivity(intent)
+//        }
+//        dicom_img_3.onClick {
+//            val intent = Intent(this,DicomViewerActivity::class.java)
+//            intent.putExtra("modelUri",modelUriList[discreteScrollView.currentItem])
+//            intent.putExtra("colorBeanList",colorBeanList[discreteScrollView.currentItem])
+//            startActivity(intent)
+//        }
     }
 
     //设置中心模式展示view
@@ -166,40 +185,17 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         //案例数据填充
         fillModelUrlList()
 
-
         //Environments and Lightning (OPTIONAL)
-
-
-        light = EntityManager.get().create()
-        val (r, g, b) = Colors.cct(5_500.0f)
-        LightManager.Builder(LightManager.Type.DIRECTIONAL)
-            .color(r,g,b)
-            .intensity(110_000.0f)
-            .direction(0.0f, 2f, 1.0f)
-            .castShadows(false)
-            .build(customViewer.modelViewer.engine,light)
-        customViewer.modelViewer.scene.addEntity(light)
-        customViewer.loadIndirectLight(this, "venetian_crossroads_2k")
-        val floatArray = customViewer.modelViewer.scene.indirectLight?.getRotation(floatArrayOf(0f,1f,0f,-1f,0f,0f,0f,0f,1f))
-        customViewer.modelViewer.scene.indirectLight?.setRotation(floatArray!!)
-//        val light2 = EntityManager.get().create()
-//        LightManager.Builder(LightManager.Type.POINT)
-//            .color(r,g,b)
-//            .intensity(110_000.0f)ty6ggggg
-
-//            .direction(-1f, 0f, -1.0f)
-//            .castShadows(false)
-//            .build(customViewer.modelViewer.engine,light2)
-//        customViewer.modelViewer.scene.addEntity(light2)
+//        customViewer.loadIndirectLight(this, "environments/venetian_crossroads_2k/venetian_crossroads_2k_ibl.ktx")
+        customViewer.loadIndirectLight(this, "ibl/default_env_ibl.ktx")
+//        customViewer.loadIndirectLight(this, "ibl/pillars_2k_ibl.ktx")
+//        val floatArray = customViewer.modelViewer.scene.indirectLight?.getRotation(floatArrayOf(0f,1f,0f,-1f,0f,0f,0f,0f,1f))
 
         customViewer.modelViewer.camera.setExposure(16.0f, 1.0f / 125.0f, 100.0f)
 
 //        customViewer.loadEnvironments(this, "venetian_crossroads_2k");
         customViewer.modelViewer.view.blendMode = com.google.android.filament.View.BlendMode.TRANSLUCENT
 
-//        customViewer.modelViewer.scene.skybox = null
-//        customViewer.modelViewer.renderer.clearOptions.clear = true
-//        buildMaterial() //自定义material
 
     }
 
@@ -231,7 +227,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         discreteScrollView.setOffscreenItems(2)
         discreteScrollView.setOverScrollEnabled(false)
         discreteScrollView.setSlideOnFling(true)
-        discreteScrollView.setItemTransitionTimeMillis(100)
+        discreteScrollView.setItemTransitionTimeMillis(200)
 
         discreteScrollView.adapter = caseAdapter
         //无限滚动
@@ -250,7 +246,6 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
             setColor()
             showColorChangeView()
         }
-
 
         caseAdapter.notifyDataSetChanged()
 
@@ -286,24 +281,68 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         }
     }
 
-    var startShow = false
-    val timer = Timer()
-    val timerTask = object :TimerTask(){
-        override fun run() {
-            if (currentFocusPosition == waitFocusPosition){
+    private val moveListener = object : MoveGestureDetector.SimpleOnMoveGestureListener(){
+        override fun onMove(detector: MoveGestureDetector?, event: MotionEvent?): Boolean {
+
+            val d = detector!!.focusDelta
+            Log.d("onMove","${d.y}  ${d.x}")
+            if (abs(d.y) >= abs(d.x) ){//判断滑动为上下滑动
+                Log.d("onMove_UP_DOWN","---------------")
+
+                when(event?.pointerCount){
+                    1->{
+
+                    }
+                    2->{//调整窗宽
+
+                    }
+                }
+
+            }else{//判断滑动为左右滑动
+                Log.d("onMove_LEFT_RIGHT","---------------")
+
+                when(event?.pointerCount){
+                    2 -> {
+                        //单指屏幕左侧左滑 -> 进入阅片页
+                        if (d.x>0 && event.x <400 && !stateJumping ){
+                            stateJumping = true
+                            val intent = Intent(this@UIActivity,DicomViewerActivity::class.java)
+                            intent.putExtra("modelUri",modelUriList[discreteScrollView.currentItem])
+                            intent.putExtra("colorBeanList",colorBeanList[discreteScrollView.currentItem])
+                            startActivity(intent)
+                            Log.d("go","1111111111111")
+                        }
+                        else if (d.x<0 && event.x >1500 && !stateJumping){
+                            stateJumping = true
+                            val intent = Intent(this@UIActivity,ColorModifyActivity::class.java)
+                            intent.putExtra("modelUri",modelUriList[discreteScrollView.currentItem])
+                            intent.putExtra("colorBeanList",colorBeanList[discreteScrollView.currentItem])
+                            startActivity(intent)
+                            Log.d("go","2222222222222")
+                        }
+                    }
+                    1 -> {
+
+                    }
+                }
 
             }
+            return true
         }
     }
 
-    private var currentFocusPosition = -1
-    private var waitFocusPosition = 2
+    private var stateJumping = false
 
-
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        Log.d("onTouchEvent",event.toString())
+        moveGestureDetector.onTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
 
 
     override fun onResume() {
         super.onResume()
+        stateJumping = false
         customViewer.onResume()
     }
 

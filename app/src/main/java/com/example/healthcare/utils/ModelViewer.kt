@@ -124,17 +124,42 @@ class ModelViewer(
         // Always add a direct light source since it is required for shadowing.
         // We highly recommend adding an indirect light as well.
 
+//        light = EntityManager.get().create()
+//
+//        val (r, g, b) = Colors.cct(6_500.0f)
+//        LightManager.Builder(LightManager.Type.DIRECTIONAL)
+//            .color(r, g, b)
+//            .intensity(100_000.0f)
+//            .direction(0.0f, -1.0f, 0.0f)
+//            .castShadows(true)
+//            .build(engine, light)
+//
+//        scene.addEntity(light)
         light = EntityManager.get().create()
-
         val (r, g, b) = Colors.cct(6_500.0f)
+
         LightManager.Builder(LightManager.Type.DIRECTIONAL)
             .color(r, g, b)
-            .intensity(100_000.0f)
-            .direction(0.0f, -1.0f, 0.0f)
-            .castShadows(true)
+            // Intensity of the sun in lux on a clear day
+            .intensity(110_000.0f)
+            // The direction is normalized on our behalf
+            .direction(-0.753f, -1.0f, 0.890f)
+            .castShadows(false)
             .build(engine, light)
-
         scene.addEntity(light)
+
+//        val light2 = EntityManager.get().create()
+//
+//        LightManager.Builder(LightManager.Type.DIRECTIONAL)
+//            .color(r, g, b)
+//            // Intensity of the sun in lux on a clear day
+//            .intensity(110_000.0f)
+//            // The direction is normalized on our behalf
+//            .direction(0.0f, 2.0f, 1.0f)
+//            .castShadows(true)
+//            .build(engine, light2)
+//        scene.addEntity(light2)
+
     }
 
     constructor(
@@ -146,6 +171,8 @@ class ModelViewer(
         cameraManipulator = manipulator ?: Manipulator.Builder()
             .targetPosition(kDefaultObjectPosition.x, kDefaultObjectPosition.y, kDefaultObjectPosition.z)
             .viewport(surfaceView.width, surfaceView.height)
+            .zoomSpeed(0.075f)
+            .farPlane(2500f)
             .build(Manipulator.Mode.ORBIT)
 
         this.surfaceView = surfaceView
