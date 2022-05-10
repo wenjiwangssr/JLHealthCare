@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="100dp"
+    app:qmui_borderWidth="0dp"
+    android:textColor="@color/white"
+    android:id="@+id/text"
+    android:paddingTop="3dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="3dp"
+    android:textSize="12sp"
+    android:textStyle="bold"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content">
+</com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton>
