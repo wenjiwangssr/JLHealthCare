@@ -18,7 +18,7 @@
     <com.example.healthcare.ui.view.WheelView
         android:id="@+id/wheel_view"
         android:layout_width="120dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_height="wrap_content"
         app:dividerColor="#55000000"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,7 +36,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
-        android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintStart_toEndOf="@+id/surface" />
 </androidx.constraintlayout.widget.ConstraintLayout>

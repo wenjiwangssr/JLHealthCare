@@ -82,7 +82,7 @@ public class WheelRecyclerView extends RecyclerView {
      * 分割线画笔
      */
     final Paint dividerPaint;
-    final LinearLayoutManager layoutManager;
+    public LinearLayoutManager layoutManager;
     /**
      * 渐变画笔
      */

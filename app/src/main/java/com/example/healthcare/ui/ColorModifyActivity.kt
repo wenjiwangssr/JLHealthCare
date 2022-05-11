@@ -6,11 +6,16 @@ import android.util.Log
 import com.example.healthcare.R
 import com.example.healthcare.base.BaseSurfaceViewActivity
 import com.example.healthcare.bean.ColorBean
+import com.example.healthcare.ui.adapter.ColorAdapter
 import com.example.healthcare.ui.view.TestAdapter
 import com.example.healthcare.ui.view.WheelView
 import com.example.healthcare.utils.CommonHelper
+import com.yarolegovich.discretescrollview.DSVOrientation
 import com.yarolegovich.discretescrollview.DiscreteScrollView
 import com.yarolegovich.discretescrollview.InfiniteScrollAdapter
+import com.yarolegovich.discretescrollview.transform.Pivot
+import com.yarolegovich.discretescrollview.transform.ScaleTransformer
+import kotlin.math.min
 
 
 /**
@@ -49,9 +54,34 @@ class ColorModifyActivity:BaseSurfaceViewActivity() {
         }else{
             return
         }
+
+
+        discreteScrollView = findViewById(R.id.scrollView)
+        discreteScrollView.setOffscreenItems(0)
+        discreteScrollView.setOverScrollEnabled(true)
+        discreteScrollView.setSlideOnFling(true)
+//        discreteScrollView.setItemTransitionTimeMillis(100)
+        discreteScrollView.setOrientation(DSVOrientation.VERTICAL)
+        val colorAdapter = ColorAdapter()
+        colorAdapter.data = colorBeanList
         //无限滚动
-//        val infiniteScrollAdapter = InfiniteScrollAdapter.wrap(Whee)
-//        discreteScrollView.adapter = infiniteScrollAdapter
+        val infiniteScrollAdapter = InfiniteScrollAdapter.wrap(colorAdapter)
+        discreteScrollView.adapter = infiniteScrollAdapter
+
+
+        discreteScrollView.setItemTransformer(
+            ScaleTransformer.Builder()
+            .setMaxScale(1.0f)
+            .setMinScale(0.68f)
+            .setPivotX(Pivot.X.CENTER)
+            .setPivotY(Pivot.Y.CENTER)
+            .build())
+        discreteScrollView.addOnItemChangedListener { viewHolder, adapterPosition ->
+
+        }
+
+
+
         testAdapter = TestAdapter(colorBeanList)
         wheelView.setAdapter(testAdapter)
 
@@ -59,7 +89,7 @@ class ColorModifyActivity:BaseSurfaceViewActivity() {
             currentIndex = it
         }
 
-        wheelView.mRecyclerView.smoothScrollToPosition(5)
+        wheelView.mRecyclerView.layoutManager.scrollToPosition(min(5,colorBeanList.size-1))
 
         customViewer.loadGltf(this,modelUri)
         setColor()
