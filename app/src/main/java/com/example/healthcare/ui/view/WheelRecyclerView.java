@@ -255,7 +255,6 @@ public class WheelRecyclerView extends RecyclerView {
 
             //如果需要画渐变阴影,取消注释的代码
 
-        /*
             float rectTop = firstY - wheelRadio;
             float rectBottom = secondY + wheelRadio;
             if (topOrLeftGradient == null) {
@@ -267,7 +266,7 @@ public class WheelRecyclerView extends RecyclerView {
                 rightOrBottomPaint.setShader(rightOrBottomGradient);
             }
             c.drawRect(getLeft(), rectTop, getRight(), firstY, topOrLeftPaint);
-            c.drawRect(getLeft(), secondY, getRight(), rectBottom, rightOrBottomPaint);*/
+            c.drawRect(getLeft(), secondY, getRight(), rectBottom, rightOrBottomPaint);
         } else {
             float dividerOff = (getWidth() - dividerSize) / 2.0f;
             float firstX = getLeft() + dividerOff;

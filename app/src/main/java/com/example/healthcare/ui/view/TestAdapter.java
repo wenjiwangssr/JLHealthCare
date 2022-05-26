@@ -28,7 +28,7 @@ public class TestAdapter extends WheelView.WheelAdapter<UserViewHolder> {
 
     @Override
     public UserViewHolder onCreateViewHolder(LayoutInflater inflater, int viewType) {
-        return new UserViewHolder(inflater.inflate(R.layout.item_color_picker, null, false));
+        return new UserViewHolder(inflater.inflate(R.layout.item_color_picker2, null, false));
     }
 
     @Override
@@ -36,7 +36,7 @@ public class TestAdapter extends WheelView.WheelAdapter<UserViewHolder> {
         ColorBean item = colorBeanList.get(position);
         holder.tv_name.setText(item.getMesh_name());
         holder.tv_name.setBackgroundColor(Color.argb(item.getA(),item.getR(),item.getG(),item.getB()));
-        if (item.getR()*0.299 + item.getG()*0.587 + item.getB()*0.144 <= 0.753 || item.getA() <= 0.4){
+        if (item.getR()*0.299 + item.getG()*0.587 + item.getB()*0.144 < 0.753 && item.getA() > 0.7){
             holder.tv_name.setTextColor(Color.WHITE);
         }else{
             holder.tv_name.setTextColor(Color.BLACK);

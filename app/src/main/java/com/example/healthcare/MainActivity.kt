@@ -128,6 +128,7 @@ class MainActivity : AppCompatActivity() {
             .refractionMode(MaterialBuilder.RefractionMode.SCREEN_SPACE)
             .postLightingBlending(MaterialBuilder.BlendingMode.TRANSPARENT)
             .blending(MaterialBuilder.BlendingMode.TRANSPARENT)
+            
             .transparencyMode(MaterialBuilder.TransparencyMode.DEFAULT)
             .refractionMode(MaterialBuilder.RefractionMode.NONE)
             // Add a parameter to the material that can be set via the setParameter method once
@@ -162,7 +163,6 @@ class MainActivity : AppCompatActivity() {
         // to build more materials, we could call MaterialBuilder.init() again (with a slight
         // performance hit).
         MaterialBuilder.shutdown()
-
 
     }
 

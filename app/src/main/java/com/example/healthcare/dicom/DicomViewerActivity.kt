@@ -17,6 +17,7 @@ import com.example.healthcare.base.BaseSurfaceViewActivity
 import com.example.healthcare.bean.ColorBean
 import com.example.healthcare.utils.CommonHelper
 import com.imebra.*
+import com.qmuiteam.qmui.widget.QMUIRadiusImageView
 import kotlinx.android.synthetic.main.activity_dicom_viewer.*
 import me.rosuh.filepicker.config.FilePickerManager
 import org.dcm4che3.android.RasterUtil
@@ -62,9 +63,9 @@ class DicomViewerActivity : BaseSurfaceViewActivity() {
                     1->{
                         mFocusY -= d.y
                         mFocusY = Math.max(0f,mFocusY)
-                        mFocusY = Math.min((dicomFiles.size-1)*20f,mFocusY)
+                        mFocusY = Math.min((dicomFiles.size-1)*15f,mFocusY)
 
-                        val index = mFocusY.toInt()/20
+                        val index = mFocusY.toInt()/15
                         if (index!=currentIndex){
                             currentIndex = index
                             loadDicomIntoImageView(dicomFiles[currentIndex],mImageView)
@@ -279,7 +280,7 @@ class DicomViewerActivity : BaseSurfaceViewActivity() {
             val bmp = RasterUtil.gray8ToBitmap(columns, row, raster.byteData)
             imageView.setImageBitmap(bmp) //显示图片
         } catch (e: Exception) {
-            Log.e("TAG", "" + e)
+            Log.d("TAG", "" + e)
         }
     }
 
@@ -307,7 +308,7 @@ class DicomViewerActivity : BaseSurfaceViewActivity() {
             image.height.toInt(), Bitmap.Config.ARGB_8888
         )
         renderBitmap.copyPixelsFromBuffer(byteBuffer)
-        val imageView = findViewById(R.id.mImageView) as ImageView
+        val imageView = findViewById<QMUIRadiusImageView>(R.id.mImageView)
         imageView.setImageBitmap(renderBitmap)
     }
 
@@ -403,7 +404,5 @@ class DicomViewerActivity : BaseSurfaceViewActivity() {
         }
 
     }
-
-
 
 }

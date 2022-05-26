@@ -141,12 +141,12 @@ public class VerticalLoopLayoutManager extends RecyclerView.LayoutManager {
             }
             if(dy > 0){
                 if(childView.getBottom() - getPaddingTop() <= 0){
-                    Log.e(TAG,"dy > 0");
+                    Log.d(TAG,"dy > 0");
                     removeAndRecycleView(childView,recycler);
                 }
             }else {
                 if(childView.getTop() - getPaddingBottom() >= getHeight()){
-                    Log.e(TAG,"dy < 0");
+                    Log.d(TAG,"dy < 0");
                     removeAndRecycleView(childView, recycler);
                 }
             }
@@ -197,7 +197,7 @@ public class VerticalLoopLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
-        Log.e(TAG,"smoothScrollToPosition dy-->" + dy);
+        Log.d(TAG,"smoothScrollToPosition dy-->" + dy);
         recyclerView.smoothScrollBy(0, dy);
     }
 }

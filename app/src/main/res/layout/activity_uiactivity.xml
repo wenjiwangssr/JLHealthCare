@@ -7,6 +7,19 @@
     tools:context=".ui.UIActivity">
 
     <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout
+        android:id="@+id/report_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/color_view_container"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/dicom_view_container"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout>
+
+    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout
         android:id="@+id/dicom_view_container"
         android:layout_width="120dp"
         android:layout_marginTop="15dp"
@@ -59,20 +72,19 @@
         android:layout_width="0dp"
         android:id="@+id/surface_container"
         android:layout_height="0dp"
-        app:cardCornerRadius="15dp"
+        app:cardCornerRadius="8dp"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         app:layout_constraintBottom_toTopOf="@+id/frame"
         app:layout_constraintEnd_toStartOf="@+id/color_view_container"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/dicom_view_container"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/report_container">
+
         <SurfaceView
             android:id="@+id/surface"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-           />
+            android:layout_height="match_parent" />
     </androidx.cardview.widget.CardView>
 
     <FrameLayout

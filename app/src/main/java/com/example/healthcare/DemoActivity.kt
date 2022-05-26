@@ -16,7 +16,6 @@
 
 package com.example.healthcare
 
-import Mesh
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -89,6 +88,8 @@ class DemoActivity : Activity() {
         viewerContent.sunlight = modelViewer.light
         viewerContent.lightManager = modelViewer.engine.lightManager
         viewerContent.scene = modelViewer.scene
+
+
         viewerContent.renderer = modelViewer.renderer
         viewerContent.materials = modelViewer.asset?.materialInstances
 
@@ -357,7 +358,7 @@ class DemoActivity : Activity() {
                 modelViewer.loadModelGltf(gltfBuffer) { uri ->
                     val path = prefix.resolve(uri).toString()
                     if (!pathToBufferMapping.contains(path)) {
-                        Log.e(TAG, "Could not find '$uri' in zip using prefix '$prefix'")
+                        Log.d(TAG, "Could not find '$uri' in zip using prefix '$prefix'")
                         setStatusText("Zip is missing $path")
                     }
                     pathToBufferMapping[path]

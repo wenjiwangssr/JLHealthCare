@@ -6,26 +6,24 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.healthcare.R;
+import com.example.healthcare.dicom.MoveGestureDetector;
 
 
 /**
  * Created by you on 2017/10/11.
  */
 
-public class WheelView extends ViewGroup {
+public  class WheelView extends ViewGroup {
     /**
      * 无效的位置
      */
@@ -92,6 +90,7 @@ public class WheelView extends ViewGroup {
             gravity = a.getInt(R.styleable.WheelView_wheelGravity, gravity);
             a.recycle();
         }
+        moveGestureDetector = new MoveGestureDetector(context,moveGestureListener);
         initRecyclerView(context);
     }
 
@@ -194,6 +193,47 @@ public class WheelView extends ViewGroup {
 
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
         this.listener = listener;
+    }
+
+    private MoveGestureDetector moveGestureDetector;
+
+    private MoveGestureDetector.OnMoveGestureListener moveGestureListener = new MoveGestureDetector.OnMoveGestureListener() {
+        @Override
+        public boolean onMove(MoveGestureDetector detector, MotionEvent event) {
+            if (Math.abs(detector.getFocusDelta().x) > Math.abs(detector.getFocusDelta().y)){
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onMoveBegin(MoveGestureDetector detector) {
+            return false;
+        }
+
+        @Override
+        public void onMoveEnd(MoveGestureDetector detector) {
+
+        }
+    };
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        Log.d("onTouchEvent",ev.toString());
+        onTouchMsgListener.onTouchMsg(ev);
+//        return moveGestureDetector.onTouchEvent(ev)? moveGestureDetector.onTouchEvent(ev):super.onInterceptTouchEvent(ev);
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    private OnTouchMsgListener onTouchMsgListener;
+
+
+    public interface OnTouchMsgListener {
+        void onTouchMsg(MotionEvent ev);
+    }
+
+    public void setOnTouchMsgListener(OnTouchMsgListener listener) {
+        this.onTouchMsgListener = listener;
     }
 
     /**

@@ -244,7 +244,7 @@ object CommonHelper {
             //属性对象
             val attrs = dcmInputStream.readDataset(-1, -1)
             //输出所有属性信息
-            Log.e("TAG", "输出所有属性信息1:$attrs")
+            Log.d("TAG", "输出所有属性信息1:$attrs")
 
             //获取行
             val row = attrs.getInt(Tag.Rows, 1)
@@ -258,23 +258,23 @@ object CommonHelper {
             val win_center = attrs.getFloat(Tag.WindowCenter, 1f)
             val win_width = attrs.getFloat(Tag.WindowWidth, 1f)
 
-            Log.e("TAG", "" + "row=" + row + ",columns=" + row + "row*columns = " + row * columns)
-            Log.e("TAG", "win_center=$win_center,win_width=$win_width")
+            Log.d("TAG", "" + "row=" + row + ",columns=" + row + "row*columns = " + row * columns)
+            Log.d("TAG", "win_center=$win_center,win_width=$win_width")
             //获取像素数据 ，这个像素数据不知道怎么用！！！，得到的是图片像素的两倍的长度
             //后面那个 raster.getByteData()是图片的像素数据
             val b = attrs.getSafeBytes(Tag.PixelData)
             if (b != null) {
-                Log.e("TAG", "" + "b.length=" + b.size)
+                Log.d("TAG", "" + "b.length=" + b.size)
             } else {
-                Log.e("TAG", "" + "b==null")
+                Log.d("TAG", "" + "b==null")
             }
 
             //修改默认字符集为GB18030
             attrs.setString(Tag.SpecificCharacterSet, VR.CS, "GB18030") //解决中文乱码问题
-            Log.e("TAG", "输出所有属性信息2:$attrs")
+            Log.d("TAG", "输出所有属性信息2:$attrs")
             val patientName = attrs.getString(Tag.PatientName, "")
 //            tv_name.setText("姓名：$patientName")
-
+            val text = attrs.getString(Tag.PerformedSeriesSequence,"")
             //生日
             val patientBirthDate = attrs.getString(Tag.PatientBirthDate, "")
 //            tv_birthday.setText("生日：$patientBirthDate")
@@ -326,6 +326,16 @@ object CommonHelper {
             Log.e("TAG", "" + e)
         }
     }
+
+    var lastClickTime = 0L
+    fun isFastClick():Boolean{
+        val temp = lastClickTime
+        lastClickTime = System.currentTimeMillis()
+        return System.currentTimeMillis() - temp <= 500
+    }
+//    var lastClickTime = 0L
+//    fun isDoubleClick():Boolean{
+//    }
 
 
 }

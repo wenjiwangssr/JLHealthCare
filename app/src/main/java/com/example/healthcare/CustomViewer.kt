@@ -40,12 +40,12 @@ class CustomViewer
         //Skybox and background color
         //without this part the scene'll appear broken
 //        modelViewer.engine.lightManager.setColor(1,0.7f,0.5f,0f)
-//        modelViewer.makeBackgroundTransparent()
-//        modelViewer.view.blendMode = View.BlendMode.TRANSLUCENT
+        modelViewer.makeBackgroundTransparent()
+        modelViewer.view.blendMode = View.BlendMode.TRANSLUCENT
 //        modelViewer.scene.skybox = null
 
         modelViewer.scene.skybox = Skybox.Builder().build(modelViewer.engine)
-        modelViewer.scene.skybox!!.setColor(1.0f, 1.0f, 1.0f, 1f)//White color
+        modelViewer.scene.skybox!!.setColor(1f, 1f, 1f, 1.2f)//White color
     }
 
     fun loadGlb(context:Context, name: String)

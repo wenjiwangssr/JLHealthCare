@@ -15,7 +15,8 @@ class ColorAdapter:BaseQuickAdapter<ColorBean,BaseViewHolder>(R.layout.item_colo
         val text = holder.getView<QMUIRoundButton>(R.id.text)
         text.text = item.mesh_name
         text.setBackgroundColor(Color.argb(item.a,item.r,item.g,item.b))
-        if (item.r*0.299 + item.g*0.587 + item.b*0.144 <= 0.753 || item.a <= 0.4){
+//        if (item.r*0.299 + item.g*0.587 + item.b*0.144 <= 0.753 || item.a <= 0.4){
+        if (item.r * 0.299 + item.g * 0.587 + item.b * 0.144 < 0.753 && item.a > 0.69) {
             text.setTextColor(Color.WHITE)
         }else{
             text.setTextColor(Color.BLACK)

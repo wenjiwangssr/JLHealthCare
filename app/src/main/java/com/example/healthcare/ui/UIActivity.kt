@@ -1,6 +1,7 @@
 package com.example.healthcare.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ccy.focuslayoutmanager.FocusLayoutManager
+import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.example.healthcare.CustomViewer
 import com.example.healthcare.R
 import com.example.healthcare.bean.CaseBean
@@ -22,6 +24,7 @@ import com.example.healthcare.dicom.DicomViewerActivity
 import com.example.healthcare.dicom.MoveGestureDetector
 import com.example.healthcare.ui.adapter.CaseAdapter
 import com.example.healthcare.ui.adapter.ColorAdapter
+import com.example.healthcare.ui.view.PDFViewActivity
 import com.example.healthcare.utils.CommonHelper
 import com.example.healthcare.utils.CommonHelper.decode
 import com.google.android.filament.*
@@ -31,10 +34,12 @@ import com.yarolegovich.discretescrollview.transform.Pivot
 import com.yarolegovich.discretescrollview.transform.ScaleTransformer
 import kotlinx.android.synthetic.main.activity_dicom_viewer.*
 import kotlinx.android.synthetic.main.activity_uiactivity.*
+import me.rosuh.filepicker.config.FilePickerManager
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.PermissionRequest
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 
@@ -58,7 +63,9 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
     private lateinit var moveGestureDetector: MoveGestureDetector
 
+    val TO_COLOR_MODIFY = 211
 
+    var lastClickTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // First thing: load the Imebra library
@@ -123,6 +130,20 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         colorAdapter = ColorAdapter()
         colorRecyclerView.adapter = colorAdapter
 
+        colorAdapter.setOnItemClickListener { adapter, view, position ->
+            if (isFastClick())return@setOnItemClickListener
+            val intent = Intent(this@UIActivity, ColorModifyActivity::class.java)
+            intent.putExtra("modelUri", modelUriList[discreteScrollView.currentItem])
+            intent.putExtra("colorBeanList", colorBeanList[discreteScrollView.currentItem])
+            startActivityForResult(intent,TO_COLOR_MODIFY)
+        }
+
+    }
+
+    fun isFastClick():Boolean{
+        val temp = lastClickTime
+        lastClickTime = System.currentTimeMillis()
+        return System.currentTimeMillis() - temp <= 500
     }
 
     override fun onRequestPermissionsResult(
@@ -191,7 +212,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 //        customViewer.loadIndirectLight(this, "ibl/pillars_2k_ibl.ktx")
 //        val floatArray = customViewer.modelViewer.scene.indirectLight?.getRotation(floatArrayOf(0f,1f,0f,-1f,0f,0f,0f,0f,1f))
 
-        customViewer.modelViewer.camera.setExposure(16.0f, 1.0f / 125.0f, 100.0f)
+//        customViewer.modelViewer.camera.setExposure(16.0f, 1.0f / 125.0f, 100.0f)
 
 //        customViewer.loadEnvironments(this, "venetian_crossroads_2k");
         customViewer.modelViewer.view.blendMode = com.google.android.filament.View.BlendMode.TRANSLUCENT
@@ -200,7 +221,8 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
     }
 
     private fun fillModelUrlList() {
-        modelUriList.add("models/谢子东untitled.gltf")
+//        modelUriList.add("models/谢子东untitled.gltf")
+        modelUriList.add("models/untitled_1.gltf")
         modelUriList.add("models/untitled_1.gltf")
         modelUriList.add("models/xzd.glb")
         modelUriList.add("models/ylm.glb")
@@ -242,14 +264,23 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
         emptyView = findViewById(R.id.empty_view)
         discreteScrollView.addOnItemChangedListener { viewHolder, adapterPosition ->
+            if (firstSelect){
+                firstSelect = false
+                return@addOnItemChangedListener
+            }
             customViewer.loadGltf(this,modelUriList[adapterPosition])
-            setColor()
+            if (colorBeanList[adapterPosition].isEmpty()){
+                setColor()
+            }else{
+                refreshColor()
+            }
             showColorChangeView()
         }
 
         caseAdapter.notifyDataSetChanged()
 
     }
+    var firstSelect = true
 
     /**
      * 展示模型 调色区
@@ -264,14 +295,15 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
         val entities = customViewer.modelViewer.asset!!.entities
 
-        for (count in entities.indices){
+
+        for (count in 0..entities.size-1){
             Log.d("MeshBlendingMode:",customViewer.modelViewer.asset!!.materialInstances[count].material.blendingMode.toString())
             val meshName = decode(customViewer.modelViewer.asset!!.getName(entities[count]))
             Log.d("MeshBlendingMode: mesh_name",meshName)
 
             val color = Color.parseColor(CommonHelper.colorMap.getOrDefault(meshName,"#FFCA95"))
             Log.d("mesh_color","${Color.red(color)}  ${Color.green(color)}  ${Color.blue(color)}")
-            colorBeanList[discreteScrollView.currentItem].add(ColorBean(mesh_name = meshName,r = Color.red(color)/256f,g = Color.green(color)/256f,b = Color.blue(color)/256f,a = 0.5f))
+            colorBeanList[discreteScrollView.currentItem].add(ColorBean(mesh_name = meshName,r = Color.red(color)/256f,g = Color.green(color)/256f,b = Color.blue(color)/256f,a = 0.7f))
             myInstance[count].setParameter("baseColorFactor",
                 colorBeanList[discreteScrollView.currentItem][count].r,
                 colorBeanList[discreteScrollView.currentItem][count].g,
@@ -291,7 +323,12 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
                 when(event?.pointerCount){
                     1->{
-
+                        if (d.y>0  && !stateJumping ){
+                            stateJumping = true
+                            val intent = Intent(this@UIActivity,PDFViewActivity::class.java)
+                            startActivity(intent)
+                            Log.d("go","3333333333333")
+                        }
                     }
                     2->{//调整窗宽
 
@@ -339,6 +376,34 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         return super.onTouchEvent(event)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(resultCode){
+            TO_COLOR_MODIFY -> {
+                if ( data != null){
+                    colorBeanList[discreteScrollView.currentItem].clear()
+                    colorBeanList[discreteScrollView.currentItem].addAll(data.getSerializableExtra ("ColorBeanList") as ArrayList<ColorBean>)
+                    colorAdapter.notifyDataSetChanged()
+                    refreshColor()
+                }
+            }
+        }
+    }
+
+    private fun refreshColor() {
+        val myInstance =  customViewer.modelViewer.asset?.materialInstances!!
+
+        val entities = customViewer.modelViewer.asset!!.entities
+
+        for (count in entities.indices){
+            myInstance[count].setParameter("baseColorFactor",
+                colorBeanList[discreteScrollView.currentItem][count].r,
+                colorBeanList[discreteScrollView.currentItem][count].g,
+                colorBeanList[discreteScrollView.currentItem][count].b,
+                colorBeanList[discreteScrollView.currentItem][count].a
+            )
+        }
+    }
 
     override fun onResume() {
         super.onResume()
