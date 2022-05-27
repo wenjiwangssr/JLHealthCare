@@ -63,7 +63,7 @@ class CustomViewer
 
 
     @Synchronized
-     fun loadGltf(context: Context, name: String)
+    fun loadGltf(context: Context, name: String)
     {
 //        val buffer = context.assets.open(name).use { input ->
 //            val bytes = ByteArray(input.available())
@@ -71,22 +71,25 @@ class CustomViewer
 //            ByteBuffer.wrap(bytes)
 //
 //        }
-            val `in` = if (name.contains("base64")){
-                val code = name.split("base64,")[1]
-                ByteArrayInputStream(Base64.decode(code, Base64.DEFAULT))
-            }else{
-                context.assets.open(name)
-            }
-            val buffer = `in`.use{ input ->
-                val bytes = ByteArray(input.available())
-                input.read(bytes)
-                ByteBuffer.wrap(bytes)
-            }
+        val `in` = if (name.contains("base64")){
+            val code = name.split("base64,")[1]
+            ByteArrayInputStream(Base64.decode(code, Base64.DEFAULT))
+        }else{
+            context.assets.open(name)
+        }
+        val buffer = `in`.use{ input ->
+            val bytes = ByteArray(input.available())
+            input.read(bytes)
+            ByteBuffer.wrap(bytes)
+        }
 
 
-            modelViewer.loadModelGltf(buffer){ uri -> readAsset(context, "models/$uri") }
-            modelViewer.transformToUnitCube()
-
+//        modelViewer.loadModelGltf(buffer){ uri -> readAsset(context, "models/$uri") }
+        modelViewer.loadModelGltfAsync(buffer){ uri ->
+//            Log.d("TimeTag","FinishLoadingASYNC...... Cost time:${System.currentTimeMillis()}")
+            readAsset(context, "models/$uri")
+        }
+        modelViewer.transformToUnitCube()
 
 
 

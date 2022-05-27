@@ -28,6 +28,7 @@ import com.example.healthcare.ui.view.PDFViewActivity
 import com.example.healthcare.utils.CommonHelper
 import com.example.healthcare.utils.CommonHelper.decode
 import com.google.android.filament.*
+import com.ldoublem.loadingviewlib.view.LVCircularRing
 import com.qmuiteam.qmui.kotlin.onClick
 import com.yarolegovich.discretescrollview.DiscreteScrollView
 import com.yarolegovich.discretescrollview.transform.Pivot
@@ -63,6 +64,24 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
     private lateinit var moveGestureDetector: MoveGestureDetector
 
+    private lateinit var loadingView: LVCircularRing
+
+    private lateinit var timer:Timer
+    private lateinit var timerTask:TimerTask
+
+
+    private fun initTimerTask() {
+        timer = Timer()
+        timerTask = object :TimerTask(){
+            override fun run() {
+                runOnUiThread {
+                    loadingView.stopAnim()
+                    loadingView.visibility = View.GONE
+                }
+            }
+        }
+    }
+
     val TO_COLOR_MODIFY = 211
 
     var lastClickTime = 0L
@@ -78,6 +97,8 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         val uiOptions = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN)
         decorView.systemUiVisibility = uiOptions
+
+        setLoadingView()
 
         //模拟数据
         caseList.add(CaseBean(age = 36,id = 20220330,gender = 1,patient_name = "杨*明",dept_name = "漳州市医院\n胸外科",date = "2022年3月22日",des = "重建上腔静脉血管，主动脉血管，肺动脉血管，肺静脉血管，淋巴结，心脏，支气管，肺，结节，疑似结节等模型。"))
@@ -108,6 +129,14 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         findViewById<View>(R.id.back).onClick {
             finish()
         }
+    }
+
+    /**
+     * 设置LoadingView
+     */
+    private fun setLoadingView() {
+        loadingView = findViewById(R.id.loading_view)
+        loadingView.setViewColor(R.color.main_light)
     }
 
     //初始化右侧色块选择栏
@@ -249,7 +278,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         discreteScrollView.setOffscreenItems(2)
         discreteScrollView.setOverScrollEnabled(false)
         discreteScrollView.setSlideOnFling(true)
-        discreteScrollView.setItemTransitionTimeMillis(200)
+        discreteScrollView.setItemTransitionTimeMillis(130)
 
         discreteScrollView.adapter = caseAdapter
         //无限滚动
@@ -262,22 +291,62 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
             .setPivotY(Pivot.Y.CENTER)
             .build())
 
+        discreteScrollView.addScrollListener { scrollPosition, currentPosition, newPosition, currentHolder, newCurrent ->
+
+        }
+        discreteScrollView.addScrollStateChangeListener(object :DiscreteScrollView.ScrollStateChangeListener<RecyclerView.ViewHolder>{
+            override fun onScrollStart(
+                currentItemHolder: RecyclerView.ViewHolder,
+                adapterPosition: Int
+            ) {
+                Log.d("onScroll","onScrollStart...")
+                loadingView.visibility = View.VISIBLE
+                loadingView.startAnim()
+            }
+
+            override fun onScrollEnd(
+                currentItemHolder: RecyclerView.ViewHolder,
+                adapterPosition: Int
+            ) {
+                Log.d("onScroll","onScrollEnd...")
+            }
+
+            override fun onScroll(
+                scrollPosition: Float,
+                currentPosition: Int,
+                newPosition: Int,
+                currentHolder: RecyclerView.ViewHolder?,
+                newCurrent: RecyclerView.ViewHolder?
+            ) {
+            }
+
+        })
         emptyView = findViewById(R.id.empty_view)
         discreteScrollView.addOnItemChangedListener { viewHolder, adapterPosition ->
-            if (firstSelect){
-                firstSelect = false
-                return@addOnItemChangedListener
-            }
+//            if (firstSelect){
+//                firstSelect = false
+//                return@addOnItemChangedListener
+//            }
+            val time = System.currentTimeMillis()
+            Log.d("TimeTag","StartLoadingModel...... $time")
             customViewer.loadGltf(this,modelUriList[adapterPosition])
+            Log.d("TimeTag","FinishLoadingModel...... Cost time:${System.currentTimeMillis() - time}")
             if (colorBeanList[adapterPosition].isEmpty()){
                 setColor()
             }else{
                 refreshColor()
             }
+
+            initTimerTask()
+            timer.schedule(timerTask,400)
+//            loadingView.stop()
+//            loadingView.visibility = View.GONE
+//            Log.d("TimeTag","SetColor...... Cost time:${System.currentTimeMillis() - time}")
+
             showColorChangeView()
         }
 
-        caseAdapter.notifyDataSetChanged()
+//        caseAdapter.notifyDataSetChanged()
 
     }
     var firstSelect = true

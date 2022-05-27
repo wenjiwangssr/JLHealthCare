@@ -68,16 +68,15 @@
             android:id="@+id/rv_color_picker"
             android:layout_height="match_parent"/>
     </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout>
-    <androidx.cardview.widget.CardView
+    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundFrameLayout
         android:layout_width="0dp"
         android:id="@+id/surface_container"
         android:layout_height="0dp"
-        app:cardCornerRadius="8dp"
         android:layout_marginStart="15dp"
+        app:qmui_radius="@dimen/dp_10"
         android:layout_marginEnd="15dp"
         app:layout_constraintBottom_toTopOf="@+id/frame"
         app:layout_constraintEnd_toStartOf="@+id/color_view_container"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/dicom_view_container"
         app:layout_constraintTop_toBottomOf="@+id/report_container">
 
@@ -85,7 +84,14 @@
             android:id="@+id/surface"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </androidx.cardview.widget.CardView>
+
+        <com.ldoublem.loadingviewlib.view.LVCircularRing
+            android:id="@+id/loading_view"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"/>
+    </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundFrameLayout>
 
     <FrameLayout
         android:id="@+id/frame"
@@ -130,4 +136,7 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:text="back"/>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
