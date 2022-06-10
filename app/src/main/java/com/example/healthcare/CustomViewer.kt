@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Base64
 import android.util.Log
 import android.view.Choreographer
+import android.view.MotionEvent
 import android.view.SurfaceView
 import com.example.healthcare.utils.ModelViewer
 import com.google.android.filament.EntityInstance
@@ -16,7 +17,7 @@ import java.io.ByteArrayInputStream
 
 import java.nio.ByteBuffer
 
-class CustomViewer
+abstract class CustomViewer
 {
     companion object
     {
@@ -35,7 +36,11 @@ class CustomViewer
 
     fun setSurfaceView(mSurfaceView: SurfaceView)
     {
-        modelViewer = ModelViewer(mSurfaceView)
+        modelViewer = object :ModelViewer(mSurfaceView){
+            override fun onTouch1(event: MotionEvent) {
+                touch(event)
+            }
+        }
         mSurfaceView.setOnTouchListener(modelViewer)
         //Skybox and background color
         //without this part the scene'll appear broken
@@ -47,6 +52,8 @@ class CustomViewer
         modelViewer.scene.skybox = Skybox.Builder().build(modelViewer.engine)
         modelViewer.scene.skybox!!.setColor(1f, 1f, 1f, 1.2f)//White color
     }
+
+    abstract fun touch(event: MotionEvent)
 
     fun loadGlb(context:Context, name: String)
     {

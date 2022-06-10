@@ -1,6 +1,7 @@
 package com.example.healthcare.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ccy.focuslayoutmanager.FocusLayoutManager
 import com.chad.library.adapter.base.listener.OnItemClickListener
+import com.daimajia.androidanimations.library.Techniques
+import com.daimajia.androidanimations.library.YoYo
 import com.example.healthcare.CustomViewer
 import com.example.healthcare.R
 import com.example.healthcare.bean.CaseBean
@@ -38,6 +41,8 @@ import kotlinx.android.synthetic.main.activity_uiactivity.*
 import me.rosuh.filepicker.config.FilePickerManager
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.PermissionRequest
+import xander.elasticity.ElasticityHelper
+import xander.elasticity.ORIENTATION
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -86,6 +91,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
     var lastClickTime = 0L
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         // First thing: load the Imebra library
         System.loadLibrary("imebra_lib")
@@ -126,6 +132,14 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
         moveGestureDetector = MoveGestureDetector(this,moveListener)
 
+//        surfaceView.setOnTouchListener(object :View.OnTouchListener{
+//            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+//
+//                return false
+//            }
+//
+//        })
+
         findViewById<View>(R.id.back).onClick {
             finish()
         }
@@ -153,7 +167,8 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
 
         colorRecyclerView = findViewById(R.id.rv_color_picker)
         colorRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        colorRecyclerView.overScrollMode = View.OVER_SCROLL_NEVER
+//        colorRecyclerView.overScrollMode = View.OVER_SCROLL_NEVER
+        ElasticityHelper.setUpOverScroll(colorRecyclerView,ORIENTATION.VERTICAL)
 //        colorRecyclerView.setHasFixedSize(true)
 
         colorAdapter = ColorAdapter()
@@ -228,7 +243,11 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
     //设置中心模式展示view
     private fun setSurfaceView() {
         surfaceView = findViewById(R.id.surface)
-        customViewer = CustomViewer()
+        customViewer =object :CustomViewer(){
+            override fun touch(event: MotionEvent) {
+                moveGestureDetector.onTouchEvent(event)
+            }
+        }
         customViewer.loadEntity()
         customViewer.setSurfaceView(surfaceView)
 
@@ -267,7 +286,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
     }
 
     private fun setCaseMenu2() {
-        caseAdapter = CaseAdapter(if (intent.getIntExtra("menuType",0) == 0) R.layout.item_case else R.layout.item_color_picker)
+        caseAdapter = CaseAdapter(if (intent.getIntExtra("menuType",0) == 0) R.layout.item_case2 else R.layout.item_case)
         caseAdapter.data = caseList
         caseAdapter.setOnItemClickListener { adapter, view, position ->
             if (position!= discreteScrollView.currentItem){
@@ -321,6 +340,10 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
             }
 
         })
+//        discreteScrollView.setOnTouchListener { v, event ->
+//                moveGestureDetector.onTouchEvent(event)
+//            return@setOnTouchListener super.onTouchEvent(event)
+//        }
         emptyView = findViewById(R.id.empty_view)
         discreteScrollView.addOnItemChangedListener { viewHolder, adapterPosition ->
 //            if (firstSelect){
@@ -391,7 +414,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
                 Log.d("onMove_UP_DOWN","---------------")
 
                 when(event?.pointerCount){
-                    1->{
+                    5->{
                         if (d.y>0  && !stateJumping ){
                             stateJumping = true
                             val intent = Intent(this@UIActivity,PDFViewActivity::class.java)
@@ -399,8 +422,29 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
                             Log.d("go","3333333333333")
                         }
                     }
-                    2->{//调整窗宽
-
+                    3->{//
+                        if (d.y>0  && !stateSliding ){
+                            stateSliding = true
+                            YoYo.with(Techniques.SlideOutDown)
+                                .duration(700)
+                                .repeat(0)
+                                .onEnd {
+                                    findViewById<View>(R.id.frame).visibility = View.GONE
+                                    stateSliding = false
+                                }
+                                .playOn(findViewById(R.id.frame))
+                        }
+                        if (d.y<0  && !stateSliding ){
+                            stateSliding = true
+                            findViewById<View>(R.id.frame).visibility = View.VISIBLE
+                            YoYo.with(Techniques.SlideInUp)
+                                .duration(700)
+                                .repeat(0)
+                                .onEnd {
+                                    stateSliding = false
+                                }
+                                .playOn(findViewById(R.id.frame))
+                        }
                     }
                 }
 
@@ -438,6 +482,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
     }
 
     private var stateJumping = false
+    private var stateSliding = false
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         Log.d("onTouchEvent",event.toString())

@@ -61,7 +61,7 @@ private const val kSensitivity = 100f
  *
  * See `sample-gltf-viewer` for a usage example.
  */
-class ModelViewer(
+abstract class ModelViewer(
     val engine: Engine,
     private val uiHelper: UiHelper
 ) : android.view.View.OnTouchListener {
@@ -381,8 +381,12 @@ class ModelViewer(
     @SuppressWarnings("ClickableViewAccessibility")
     override fun onTouch(view: android.view.View, event: MotionEvent): Boolean {
         onTouchEvent(event)
+        onTouch1(event)
+
         return true
     }
+
+    abstract  fun onTouch1(event: MotionEvent)
 
     private suspend fun fetchResources(asset: FilamentAsset, callback: (String) -> Buffer) {
         val items = HashMap<String, Buffer>()

@@ -4,7 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.UIActivity">
+    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundFrameLayout
+        android:layout_width="0dp"
+        android:id="@+id/surface_container"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        app:qmui_radius="@dimen/dp_10"
+        android:layout_marginEnd="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/report_container">
+
+        <SurfaceView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.ldoublem.loadingviewlib.view.LVCircularRing
+            android:id="@+id/loading_view"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"/>
+    </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundFrameLayout>
 
     <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout
         android:id="@+id/report_container"
@@ -22,6 +47,7 @@
     <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout
         android:id="@+id/dicom_view_container"
         android:layout_width="120dp"
+        android:background="#66F8F8F8"
         android:layout_marginTop="15dp"
         android:layout_height="0dp"
         android:layout_marginStart="15dp"
@@ -36,8 +62,8 @@
             android:layout_height="120dp"/>
         <View
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_height="20dp"
+            android:layout_weight="0"/>
         <com.qmuiteam.qmui.widget.QMUIRadiusImageView
             app:qmui_corner_radius="5dp"
             android:id="@+id/dicom_img_2"
@@ -45,8 +71,8 @@
             android:layout_height="120dp"/>
         <View
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_height="20dp"
+            android:layout_weight="0"/>
         <com.qmuiteam.qmui.widget.QMUIRadiusImageView
             app:qmui_corner_radius="5dp"
             android:id="@+id/dicom_img_3"
@@ -58,6 +84,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:id="@+id/color_view_container"
+        android:background="#66F8F8F8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/frame"
         app:layout_constraintTop_toTopOf="parent"
@@ -68,36 +95,12 @@
             android:id="@+id/rv_color_picker"
             android:layout_height="match_parent"/>
     </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundLinearLayout>
-    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundFrameLayout
-        android:layout_width="0dp"
-        android:id="@+id/surface_container"
-        android:layout_height="0dp"
-        android:layout_marginStart="15dp"
-        app:qmui_radius="@dimen/dp_10"
-        android:layout_marginEnd="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/frame"
-        app:layout_constraintEnd_toStartOf="@+id/color_view_container"
-        app:layout_constraintStart_toEndOf="@+id/dicom_view_container"
-        app:layout_constraintTop_toBottomOf="@+id/report_container">
-
-        <SurfaceView
-            android:id="@+id/surface"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <com.ldoublem.loadingviewlib.view.LVCircularRing
-            android:id="@+id/loading_view"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"/>
-    </com.qmuiteam.qmui.widget.roundwidget.QMUIRoundFrameLayout>
 
     <FrameLayout
         android:id="@+id/frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#f8f8f8"
+        android:background="#66F8F8F8"
         app:layout_constraintBottom_toBottomOf="parent">
         <com.yarolegovich.discretescrollview.DiscreteScrollView
             android:layout_width="match_parent"

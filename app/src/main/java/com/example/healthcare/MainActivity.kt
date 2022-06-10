@@ -2,6 +2,7 @@ package com.example.healthcare
 
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceView
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +24,12 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         surfaceView = findViewById(R.id.surface_container)
-        customViewer = CustomViewer()
+        customViewer = object :CustomViewer(){
+            override fun touch(event: MotionEvent) {
+
+            }
+
+        }
         customViewer.loadEntity()
         customViewer.setSurfaceView(surfaceView)
 

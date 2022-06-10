@@ -19,6 +19,7 @@
         <entry key="..\:/androidProject/JL/app/src/main/res/layout/activity_dicom_viewer.xml" value="0.1" />
         <entry key="..\:/androidProject/JL/app/src/main/res/layout/activity_pdfview.xml" value="0.1" />
         <entry key="..\:/androidProject/JL/app/src/main/res/layout/activity_uiactivity.xml" value="0.152" />
+        <entry key="..\:/androidProject/JL/app/src/main/res/layout/item_case2.xml" value="0.536" />
         <entry key="..\:/androidProject/JL/app/src/main/res/layout/item_color_picker.xml" value="0.11674917491749175" />
         <entry key="..\:/androidProject/JL/app/src/main/res/layout/item_color_picker2.xml" value="0.16" />
         <entry key="..\:/androidProject/JLHeathCare/app/src/main/res/layout/simple_layout.xml" value="0.1" />
@@ -30,5 +31,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.6" />
+      </ProjectState>
+    </option>
   </component>
 </project>

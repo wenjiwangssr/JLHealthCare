@@ -1,6 +1,7 @@
 package com.example.healthcare.base
 
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.SurfaceView
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -28,7 +29,10 @@ abstract class BaseSurfaceViewActivity:AppCompatActivity() {
 
     fun init(){
         surfaceView = findViewById(R.id.surface)
-        customViewer = CustomViewer()
+        customViewer =  object :CustomViewer(){
+            override fun touch(event: MotionEvent) {
+            }
+        }
         customViewer.loadEntity()
         customViewer.setSurfaceView(surfaceView)
 
