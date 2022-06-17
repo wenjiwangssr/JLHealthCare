@@ -168,7 +168,7 @@ class UIActivity : AppCompatActivity(),EasyPermissions.PermissionCallbacks {
         colorRecyclerView = findViewById(R.id.rv_color_picker)
         colorRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 //        colorRecyclerView.overScrollMode = View.OVER_SCROLL_NEVER
-        ElasticityHelper.setUpOverScroll(colorRecyclerView,ORIENTATION.VERTICAL)
+//        ElasticityHelper.setUpOverScroll(colorRecyclerView,ORIENTATION.VERTICAL)
 //        colorRecyclerView.setHasFixedSize(true)
 
         colorAdapter = ColorAdapter()

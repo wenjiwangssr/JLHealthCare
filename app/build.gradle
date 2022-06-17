@@ -8,8 +8,8 @@ android {
     compileSdk 28
 
     defaultConfig {
-        applicationId "com.example.myapplication"
-        minSdk 28
+        applicationId "com.example.jlhealth"
+        minSdk 26
         targetSdk 28
         versionCode 1
         versionName "1.0"
@@ -93,4 +93,5 @@ dependencies {
     implementation 'com.github.XanderWang:elasticity:1.0.1'
 
     implementation 'com.github.mzule.fantasyslide:library:1.0.5'
+
 }

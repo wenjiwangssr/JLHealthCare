@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.example.healthcare.R
 import com.example.healthcare.base.BaseSurfaceViewActivity
 import com.example.healthcare.bean.ColorBean
@@ -178,6 +179,10 @@ class DicomViewerActivity : BaseSurfaceViewActivity() {
 //            .forResult(REQUESTCODE_FROM_ACTIVITY)
 
         val files = File("/storage/emulated/0/dicomfile/patient1/")
+        if (files.listFiles() == null){
+            Toast.makeText(this,"No Dicom Files", Toast.LENGTH_LONG).show()
+            return
+        }
         dicomFiles.clear()
         dicomFiles.addAll(
             files.listFiles()
